@@ -11,6 +11,38 @@ npm install react-native-pedometer-details
 yarn add react-native-pedometer-details 
 ```
 
+## AndroidManifest.xml
+
+```xml
+<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED" />
+<uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name = "android.permission.FOREGROUND_SERVICE"/>
+<uses-permission android:name = "android.permission.ACTIVITY_RECOGNITION"/>
+
+
+<receiver android:name = "com.reactnativepedometerdetails.step.background.RebootActionReceiver"
+    android:exported = "false">
+    <intent-filter >
+        <action android:name = "android.intent.action.BOOT_COMPLETED"/>
+    </intent-filter>
+</receiver>
+<receiver
+    android:name = "com.reactnativepedometerdetails.step.background.Restarter"
+    android:enabled = "true"
+    android:exported = "true"
+    android:permission = "false">
+    <intent-filter>
+        <action android:name = "restartservice" />
+    </intent-filter>
+</receiver>
+<service
+    android:name="com.reactnativepedometerdetails.step.background.StepCounterService"
+    android:enabled = "true"
+    android:exported = "false" />
+
+```
+
 ## Usage
 
 ```js
