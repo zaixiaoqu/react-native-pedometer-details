@@ -5,7 +5,11 @@ react native pedometer, The extension is implemented for Android. I was going to
 ## Installation
 
 ```sh
-npm install react-native-pedometer-details
+npm install react-native-pedometer-details 
+
+# or
+
+yarn add react-native-pedometer-details 
 ```
 
 ## Usage
