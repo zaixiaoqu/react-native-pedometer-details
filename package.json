@@ -1,0 +1,44 @@
+{
+  "name": "react-native-pedometer-details",
+  "title": "React Native pedometer",
+  "version": "1.3.3",
+  "description": "React Native pedometer",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "src/",
+    "android/src/",
+    "android/build.gradle"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-docs": "node_modules/.bin/jsdoc src -r -R README.md -t node_modules/docdash -d ./docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zaixiaoqu/react-native-pedometer-details.git",
+    "baseUrl": "https://github.com/zaixiaoqu/react-native-pedometer-details"
+  },
+  "keywords": [
+    "react-native",
+    "pedometer",
+    "android"
+  ],
+  "author": {
+    "name": "yusheng",
+    "email": "don@zaixiaoqu.cn"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-native": ">=0.59.0-rc.0 <1.0.x"
+  },
+  "devDependencies": {
+    "react": "^17.0.2",
+    "react-native": "^0.66.2"
+  },
+  "dependencies": {
+  }
+}
