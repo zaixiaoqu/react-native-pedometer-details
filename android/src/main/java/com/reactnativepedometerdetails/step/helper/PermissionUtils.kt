@@ -17,7 +17,7 @@ class PermissionUtils : PermissionListener {
 
     val healthPermissionKey = Manifest.permission.ACTIVITY_RECOGNITION;
     private val SETTING_NAME = "@RNSNPermissions:NonRequestables"
-    public val ERROR_INVALID_ACTIVITY = "E_INVALID_ACTIVITY"
+    private val ERROR_INVALID_ACTIVITY = "E_INVALID_ACTIVITY"
     private val GRANTED = "granted"
     private val DENIED = "denied"
     private val BLOCKED = "blocked"
@@ -118,5 +118,12 @@ class PermissionUtils : PermissionListener {
         } catch (e: Exception) {
         }
         return false;
+    }
+
+    /**
+     * 得到错误的状态值
+     */
+    public fun getErrorStateValue(): String {
+        return ERROR_INVALID_ACTIVITY;
     }
 }

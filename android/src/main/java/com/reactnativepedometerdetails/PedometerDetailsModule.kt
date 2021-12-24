@@ -39,7 +39,7 @@ class PedometerDetailsModule(reactContext: ReactApplicationContext) : ReactConte
                     promise
                 )
             }) {
-            promise.resolve(permissionUtils.ERROR_INVALID_ACTIVITY)
+            promise.resolve(permissionUtils.getErrorStateValue())
             return
         }
         return
