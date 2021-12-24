@@ -26,6 +26,26 @@ class PedometerDetailsModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     /**
+     * 判断是否有权限
+     *
+     * @param promise
+     */
+    @ReactMethod
+    fun isNeedRequestPermission(promise: Promise) {
+        if (true == currentActivity?.let {
+                permissionUtils.isNeedRequestPermission(
+                    permissionUtils.healthPermissionKey,
+                    it,
+                    promise
+                )
+            }) {
+            promise.resolve(permissionUtils.ERROR_INVALID_ACTIVITY)
+            return
+        }
+        return
+    }
+
+    /**
      * 请求权限
      *
      * @param promise

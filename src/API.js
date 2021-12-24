@@ -55,6 +55,18 @@ export default class API {
   }
 
   /**
+   * 判断是否有足够的权限
+   */
+   static isNeedRequestPermission() {
+    if (Platform.OS !== 'android') {
+      return new Promise((resolve, reject) => {
+        resolve('blocked')
+      });
+    }
+    return PedometerDetails.isNeedRequestPermission();
+  }
+
+  /**
    * 获取一天中每小时（或一年中的一天、一年中的一周或一年中的一个月）所采取的步骤数
    */
   static getStepsByTimeUnit(

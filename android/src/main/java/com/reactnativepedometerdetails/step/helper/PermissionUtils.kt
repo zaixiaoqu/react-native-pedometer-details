@@ -17,7 +17,7 @@ class PermissionUtils : PermissionListener {
 
     val healthPermissionKey = Manifest.permission.ACTIVITY_RECOGNITION;
     private val SETTING_NAME = "@RNSNPermissions:NonRequestables"
-    private val ERROR_INVALID_ACTIVITY = "E_INVALID_ACTIVITY"
+    public val ERROR_INVALID_ACTIVITY = "E_INVALID_ACTIVITY"
     private val GRANTED = "granted"
     private val DENIED = "denied"
     private val BLOCKED = "blocked"
@@ -38,13 +38,9 @@ class PermissionUtils : PermissionListener {
             )
             return
         }
-        mRequests = SparseArray<Request>()
-        mSharedPrefs = activity.applicationContext.getSharedPreferences(SETTING_NAME, Context.MODE_PRIVATE);
-        if (activity.applicationContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-            promise.resolve(GRANTED)
-            return
-        } else if (mSharedPrefs != null && mSharedPrefs!!.getBoolean(permission, false)) {
-            promise.resolve(BLOCKED) // not supporting reset the permission with "Ask me every time"
+        if (!this.isNeedRequestPermission(
+                permission, activity, promise
+            )) {
             return
         }
         try {
@@ -78,6 +74,31 @@ class PermissionUtils : PermissionListener {
         } catch (e: Exception) {
             promise.resolve(ERROR_INVALID_ACTIVITY)
         }
+    }
+
+
+    /**
+     * 是否需要触发请求权限
+     */
+    public fun isNeedRequestPermission(permission: String, activity: Activity, promise: Promise): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            promise.resolve(
+                if (activity.applicationContext.checkPermission(permission, Process.myPid(), Process.myUid())
+                    == PackageManager.PERMISSION_GRANTED
+                ) GRANTED else BLOCKED
+            )
+            return false
+        }
+        mRequests = SparseArray<Request>()
+        mSharedPrefs = activity.applicationContext.getSharedPreferences(SETTING_NAME, Context.MODE_PRIVATE);
+        if (activity.applicationContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+            promise.resolve(GRANTED)
+            return false
+        } else if (mSharedPrefs != null && mSharedPrefs!!.getBoolean(permission, false)) {
+            promise.resolve(BLOCKED) // not supporting reset the permission with "Ask me every time"
+            return false
+        }
+        return true
     }
 
     override fun onRequestPermissionsResult(
