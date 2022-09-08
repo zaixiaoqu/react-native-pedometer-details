@@ -1,4 +1,4 @@
-package com.reactnativepedometerdetails.step
+package com.reactnativepedometerdetails.step.ExtCommon
 
 import android.provider.BaseColumns
 
@@ -13,6 +13,7 @@ object DBContract {
             val COLUMN_TIME = "hour"
             val COLUMN_STARTSTEPS = "startSteps"
             val COLUMN_ENDSTEPS = "endSteps"
+            val COLUMN_EDIT = "edit"
         }
     }
 
