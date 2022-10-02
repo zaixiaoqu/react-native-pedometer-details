@@ -503,8 +503,8 @@ class PaseoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                     cursor = db.rawQuery("SELECT SUM(" + DBContract.StepsTable.COLUMN_ENDSTEPS + " - " +
                             DBContract.StepsTable.COLUMN_STARTSTEPS + ") AS sumSteps " +
                             " FROM " + DBContract.StepsTable.TABLE_NAME +
-                            " WHERE " + DBContract.StepsTable.COLUMN_TIME + " = " + theDate +
-                            " AND " + DBContract.StepsTable.COLUMN_DATE + " = " + theDay +
+                            " WHERE " + DBContract.StepsTable.COLUMN_TIME + " = " + theDay +
+                            " AND " + DBContract.StepsTable.COLUMN_DATE + " = " + theDate +
                             " GROUP BY " + DBContract.StepsTable.COLUMN_TIME + "", null)
                 } catch (e: SQLiteException) {
                     cursor?.close()
