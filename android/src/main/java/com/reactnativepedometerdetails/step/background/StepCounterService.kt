@@ -1,36 +1,35 @@
 package com.reactnativepedometerdetails.step.background
 
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.*
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.util.Log
 import androidx.annotation.Nullable
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import com.reactnativepedometerdetails.step.ExtCommon.PaseoDBHelper
+import com.reactnativepedometerdetails.step.ExtCommon.StepsModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.pow
-import android.app.AlarmManager
-
-import android.content.Intent
-
-import android.content.IntentFilter
-
-import android.content.BroadcastReceiver
-import com.reactnativepedometerdetails.step.ExtCommon.StepsModel
-import com.reactnativepedometerdetails.step.ExtCommon.PaseoDBHelper
 
 
 class StepCounterService : Service(), SensorEventListener, TextToSpeech.OnInitListener {
 
-    private val SERVICEID = 1001
+//    private val SERVICEID = 1001
 
+    private val FOREGROUND_ID = 1991;
+    private val CHANNEL_ID = "step_counter";
+    private val CHANNEL_NAME = "StepCounter"
     var running = false
     var hasAccelerometer = true
     var hasStepCounter = true
@@ -75,6 +74,7 @@ class StepCounterService : Service(), SensorEventListener, TextToSpeech.OnInitLi
 
     override fun onCreate() {
         super.onCreate()
+        startForeground()
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
@@ -222,21 +222,46 @@ class StepCounterService : Service(), SensorEventListener, TextToSpeech.OnInitLi
 
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForegroundServiceWithNotification()
-
         super.onStartCommand(intent, flags, startId)
-
         return START_STICKY
     }
 
+    private fun startForeground() {
+        val channelId =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    createNotificationChannel()
+                } else {
+                    ""
+                }
 
-
-    private fun startForegroundServiceWithNotification() {
-
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+        val notification = notificationBuilder.setOngoing(true)
+                .setContentTitle(getAppName())
+                .setSmallIcon(applicationInfo.icon)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build()
+        startForeground(FOREGROUND_ID, notification)
     }
 
+    private fun getAppName(): String {
+        val stringId = applicationInfo.labelRes
+        return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else this.getString(stringId)
+    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(): String{
+        val channelId = CHANNEL_ID
+        val channelName = CHANNEL_NAME
+        val chan = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
+        chan.lightColor = Color.BLUE
+        chan.importance = NotificationManager.IMPORTANCE_NONE
+        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        service.createNotificationChannel(chan)
+        return channelId
+    }
 
     // needed for step counting (even though it is empty
     override fun onAccuracyChanged(p0: Sensor?, p1: Int)
@@ -381,20 +406,20 @@ class StepCounterService : Service(), SensorEventListener, TextToSpeech.OnInitLi
             // load the current number on the devices step counter sensor
             val miniGoalEndSteps = paseoDBHelper.readLastEndSteps()
 
-                // display goal step count
-                // default to the steps starting at zero (or use the day's set count, if user has set that option)
-                if (!useDaySteps) {
-                    stepCount = miniGoalEndSteps - miniGoalStartSteps
-                }
-                // or get the current day's steps
-                else {
-                    stepCount = paseoDBHelper.getDaysSteps(SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date()).toInt())
+            // display goal step count
+            // default to the steps starting at zero (or use the day's set count, if user has set that option)
+            if (!useDaySteps) {
+                stepCount = miniGoalEndSteps - miniGoalStartSteps
+            }
+            // or get the current day's steps
+            else {
+                stepCount = paseoDBHelper.getDaysSteps(SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date()).toInt())
 
-                    // start the alert steps at the beginning number of steps for the current day
-                    if (miniGoalNextAlert < stepCount - miniGoalAlertInterval && miniGoalAlertInterval > 0) {
-                        miniGoalNextAlert = ((stepCount + miniGoalAlertInterval)/miniGoalAlertInterval - 1) * miniGoalAlertInterval
-                    }
+                // start the alert steps at the beginning number of steps for the current day
+                if (miniGoalNextAlert < stepCount - miniGoalAlertInterval && miniGoalAlertInterval > 0) {
+                    miniGoalNextAlert = ((stepCount + miniGoalAlertInterval)/miniGoalAlertInterval - 1) * miniGoalAlertInterval
                 }
+            }
 
             // check if mini goal has been achieved and congratulate the user if it has
             if (stepCount >= miniGoalSteps && isGoalActive) {
@@ -438,8 +463,8 @@ class StepCounterService : Service(), SensorEventListener, TextToSpeech.OnInitLi
         if (update)
         {
             var result = paseoDBHelper.updateEndSteps(
-                StepsModel(0, date = date, hour = time,
-                    startSteps = startSteps, endSteps = endSteps)
+                    StepsModel(0, date = date, hour = time,
+                            startSteps = startSteps, endSteps = endSteps)
             )
         }
         else
