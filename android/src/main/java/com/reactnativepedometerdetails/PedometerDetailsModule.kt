@@ -1,5 +1,6 @@
 package com.reactnativepedometerdetails
 
+import android.util.Log
 import com.alibaba.fastjson.JSON
 import com.facebook.react.bridge.*
 import com.reactnativepedometerdetails.step.StartUp
@@ -15,14 +16,19 @@ class PedometerDetailsModule(reactContext: ReactApplicationContext) : ReactConte
     private var reactContext:ReactApplicationContext
 
     init {
+        permissionUtils = PermissionUtils();
         startUp = StartUp()
         startUp.startUpInit(reactContext);
-        permissionUtils = PermissionUtils();
         this.reactContext = reactContext;
     }
 
     override fun getName(): String {
         return "PedometerDetails"
+    }
+
+    @ReactMethod
+    fun restartService() {
+        startUp.restartService(reactContext)
     }
 
     /**
@@ -65,6 +71,17 @@ class PedometerDetailsModule(reactContext: ReactApplicationContext) : ReactConte
      * 按照天得到数据
      */
     @ReactMethod
+    fun clearStep(promise: Promise) {
+        val js = Arguments.createMap()
+        js.putBoolean("values", startUp.getCachePaseoDBHelper().clearStep())
+
+        promise.resolve(js)
+    }
+
+    /**
+     * 按照天得到数据
+     */
+    @ReactMethod
     fun getDaysSteps(date: Int, promise: Promise) {
         val js = Arguments.createMap()
         js.putInt("date", date)
@@ -93,7 +110,7 @@ class PedometerDetailsModule(reactContext: ReactApplicationContext) : ReactConte
      * 获取一天中每小时（或一年中的一天、一年中的一周或一年中的一个月）所采取的步骤数
      */
     @ReactMethod
-    fun getStepsByTimeUnit(date: Int, timeUnit: String, asc: Boolean = true, weekStart: Int = 2, promise: Promise) {
+    fun getStepsByTimeUnit(date: Int, timeUnit: Int, asc: Boolean = true, weekStart: Int = 2, promise: Promise) {
         var s = JSON.parseArray(
             JSON.toJSONString(startUp.getCachePaseoDBHelper().getStepsByTimeUnit(date, timeUnit, asc, weekStart))
         )
