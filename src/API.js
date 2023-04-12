@@ -33,7 +33,7 @@ export default class API {
   /**
    * 检索移动数据库中最近的行走日期
    */
-   static readLastStepsDate() {
+  static readLastStepsDate() {
     if (Platform.OS !== 'android') {
       return new Promise((resolve, reject) => {
         resolve(0)
@@ -41,7 +41,7 @@ export default class API {
     }
     return PedometerDetails.readLastStepsDate();
   }
-  
+
   /**
    * 请求权限
    */
@@ -57,7 +57,7 @@ export default class API {
   /**
    * 判断是否有足够的权限
    */
-   static isNeedRequestPermission() {
+  static isNeedRequestPermission() {
     if (Platform.OS !== 'android') {
       return new Promise((resolve, reject) => {
         resolve('blocked')
@@ -69,6 +69,7 @@ export default class API {
   /**
    * 获取一天中每小时（或一年中的一天、一年中的一周或一年中的一个月）所采取的步骤数
    */
+
   static getStepsByTimeUnit(
     date,
     timeUnit,
@@ -86,7 +87,7 @@ export default class API {
   /**
    * 获取一天中每小时（或一年中的一天、一年中的一周或一年中的一个月）所采取的步骤数
    */
-   static getSteps(
+  static getSteps(
     timeUnit, theDate, theDay = 0,
     weekStart = 2
   ) {
@@ -97,11 +98,18 @@ export default class API {
     }
     return PedometerDetails.getSteps(timeUnit, theDate, theDay, weekStart);
   }
-
+  static restartService() {
+    if (Platform.OS !== 'android') {
+      return new Promise((resolve, reject) => {
+        resolve('')
+      });
+    }
+    return PedometerDetails.restartService();
+  }
   /**
    * 获取一天中每小时（或一年中的一天、一年中的一周或一年中的一个月）所采取的步骤数
    */
-   static getAverageSteps(
+  static getAverageSteps(
     timeUnit, weekStart = 2
   ) {
     if (Platform.OS !== 'android') {
