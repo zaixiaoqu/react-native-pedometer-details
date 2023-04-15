@@ -1,21 +1,18 @@
 package com.reactnativepedometerdetails.step
 
 import android.app.ActivityManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.hardware.SensorManager
+import android.os.Build
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
-import com.reactnativepedometerdetails.step.ExtCommon.PaseoDBHelper
 import com.reactnativepedometerdetails.step.background.StepCounterService
 
 class StartUp {
     private var startSteps = 0
     private var lastStepDate = 0
     private lateinit var paseoDBHelper: PaseoDBHelper
-    // receiver for step counting service
-    private var receiver: BroadcastReceiver? = null
 
     public fun startUpInit(context: ReactApplicationContext) {
         try {
@@ -41,6 +38,7 @@ class StartUp {
 
     // check if the step counting service is already running (to avoid starting a second one)
     private fun isServiceRunning(context: ReactApplicationContext, serviceName: String): Boolean {
+        println("isServiceRunning=====")
         var serviceRunning = false
         try {
             val theActivityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -68,32 +66,39 @@ class StartUp {
 
     // start the step counting and activity detection services
     private fun startStepService(context: ReactApplicationContext) {
-        context.startService(Intent(context, StepCounterService::class.java))
+
+        println("startStepService=========")
+//       context.startService(Intent(context, StepCounterService::class.java))
+
+        try {
+            // restart the step counting service (different code to achieve this depending on Android version)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val intent = Intent(context,StepCounterService::class.java)
+                ContextCompat.startForegroundService(context,intent)
+
+
+               // ContextCompat.startForegroundService(Intent(context, StepCounterService::class.java))
+            } else {
+                context.startService(Intent(context, StepCounterService::class.java))
+            }
+        } catch (e:Exception) {
+
+        }
+
     }
 
 
     // stop the step counting service and activity detection services
     public fun stopServices(context: ReactApplicationContext) {
-        // stop the step counting service
         context.stopService(Intent(context, StepCounterService::class.java))
+    }
+
+    public fun restartService(context: ReactApplicationContext) {
+        stopServices(context)
+        startStepService(context)
     }
 
     public fun getCachePaseoDBHelper() : PaseoDBHelper {
         return paseoDBHelper;
-    }
-
-
-    // set up receiving messages from the step counter service
-    private fun configureReceiver(context: ReactApplicationContext) {
-        val filter = IntentFilter()
-        filter.addAction("ca.chancehorizon.paseo.action")
-        filter.addAction("android.intent.action.ACTION_POWER_DISCONNECTED")
-
-        receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-            }
-        }
-
-        context?.registerReceiver(receiver, filter)
     }
 }
